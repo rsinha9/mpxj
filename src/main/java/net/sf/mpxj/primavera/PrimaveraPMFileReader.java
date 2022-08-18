@@ -690,7 +690,6 @@ public final class PrimaveraPMFileReader extends AbstractProjectStreamReader
     */
    private void processActivityCodes(APIBusinessObjects apibo, List<ActivityCodeTypeType> activityCodeTypes, List<ActivityCodeType> activityCodes)
    {
-      ActivityCodeContainer container = m_projectFile.getActivityCodes();
       Map<Integer, ActivityCode> map = new HashMap<>();
 
       List<ActivityCodeTypeType> types = new ArrayList<>();
@@ -699,8 +698,12 @@ public final class PrimaveraPMFileReader extends AbstractProjectStreamReader
 
       for (ActivityCodeTypeType type : types)
       {
-         ActivityCode code = new ActivityCode(type.getObjectId(), ACTIVITY_CODE_SCOPE_MAP.get(type.getScope()), type.getProjectObjectId(), type.getSequenceNumber(), type.getName());
-         container.add(code);
+         ActivityCode code = m_projectFile.addActivityCode();
+         code.setUniqueID(type.getObjectId());
+         code.setScope(ACTIVITY_CODE_SCOPE_MAP.get(type.getScope()));
+         code.setScopeUniqueID(type.getProjectObjectId());
+         code.setSequenceNumber(type.getSequenceNumber());
+         code.setName(type.getName());
          map.put(code.getUniqueID(), code);
       }
 

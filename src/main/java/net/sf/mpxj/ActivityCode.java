@@ -27,28 +27,23 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.mpxj.common.NumberHelper;
+import net.sf.mpxj.listener.FieldListener;
+
 /**
  * Activity code type definition, contains a list of the valid
  * values for this activity code.
  */
-public class ActivityCode
+public class ActivityCode extends ProjectEntity implements Comparable<ActivityCode>
 {
-   /**
-    * Constructor.
-    *
-    * @param uniqueID activity code unique ID
-    * @param scope activity code scope
-    * @param scopeUniqueID scope object unique ID
-    * @param sequenceNumber sequence number
-    * @param name activity code name
-    */
-   public ActivityCode(Integer uniqueID, ActivityCodeScope scope, Integer scopeUniqueID, Integer sequenceNumber, String name)
-   {
-      m_uniqueID = uniqueID;
-      m_scope = scope;
-      m_scopeUniqueID = scopeUniqueID;
-      m_sequenceNumber = sequenceNumber;
-      m_name = name;
+   ActivityCode(ProjectFile file) {
+      super(file);
+
+      ProjectConfig config = file.getProjectConfig();
+
+      if (config.getAutoActivityCodeUniqueID()) {
+         setUniqueID(Integer.valueOf(config.getNextActivityCodeUniqueID()));
+      }
    }
 
    /**
@@ -61,6 +56,11 @@ public class ActivityCode
       return m_uniqueID;
    }
 
+   public void setUniqueID(Integer id)
+   {
+      m_uniqueID = id;
+   }
+
    /**
     * Retrieve the scope of this activity code.
     *
@@ -69,6 +69,10 @@ public class ActivityCode
    public ActivityCodeScope getScope()
    {
       return m_scope;
+   }
+
+   public void setScope(ActivityCodeScope scope) {
+      m_scope = scope;
    }
 
    /**
@@ -85,6 +89,10 @@ public class ActivityCode
       return m_scopeUniqueID;
    }
 
+   public void setScopeUniqueID(Integer scopeUniqueID) {
+      m_scopeUniqueID = scopeUniqueID;
+   }
+
    /**
     * Retrieve the sequence number of this activity code.
     *
@@ -95,6 +103,10 @@ public class ActivityCode
       return m_sequenceNumber;
    }
 
+   public void setSequenceNumber(Integer sequenceNumber) {
+      m_sequenceNumber = sequenceNumber;
+   }
+
    /**
     * Retrieve the activity code name.
     *
@@ -103,6 +115,10 @@ public class ActivityCode
    public String getName()
    {
       return m_name;
+   }
+
+   public void setName(String name) {
+      m_name = name;
    }
 
    /**
@@ -132,10 +148,18 @@ public class ActivityCode
       return m_values;
    }
 
-   private final Integer m_uniqueID;
-   private final ActivityCodeScope m_scope;
-   private final Integer m_scopeUniqueID;
-   private final Integer m_sequenceNumber;
-   private final String m_name;
+   @Override public int compareTo(ActivityCode o)
+   {
+      int id1 = NumberHelper.getInt(getUniqueID());
+      int id2 = NumberHelper.getInt(o.getUniqueID());
+      return (Integer.compare(id1, id2));
+   }
+
+   private Integer m_uniqueID;
+   private ActivityCodeScope m_scope;
+   private Integer m_scopeUniqueID;
+   private Integer m_sequenceNumber;
+   private String m_name;
    private final List<ActivityCodeValue> m_values = new ArrayList<>();
+
 }

@@ -126,6 +126,7 @@ final class PrimaveraReader
       config.setAutoAssignmentUniqueID(false);
       config.setAutoWBS(false);
       config.setBaselineStrategy(new PrimaveraBaselineStrategy());
+      config.setAutoActivityCodeUniqueID(false);
 
       m_resourceFields = resourceFields;
       m_roleFields = roleFields;
@@ -227,13 +228,17 @@ final class PrimaveraReader
     */
    public void processActivityCodes(List<Row> types, List<Row> typeValues, List<Row> assignments)
    {
-      ActivityCodeContainer container = m_project.getActivityCodes();
       Map<Integer, ActivityCode> map = new HashMap<>();
 
       for (Row row : types)
       {
-         ActivityCode code = new ActivityCode(row.getInteger("actv_code_type_id"), ACTIVITY_CODE_SCOPE_MAP.get(row.getString("actv_code_type_scope")), row.getInteger("proj_id"), row.getInteger("seq_num"), row.getString("actv_code_type"));
-         container.add(code);
+         ActivityCode code = m_project.addActivityCode();
+         code.setUniqueID(row.getInteger("actv_code_type_id"));
+         code.setScope(ACTIVITY_CODE_SCOPE_MAP.get(row.getString("actv_code_type_scope")));
+         code.setScopeUniqueID(row.getInteger("proj_id"));
+         code.setSequenceNumber(row.getInteger("seq_num"));
+         code.setName(row.getString("actv_code_type"));
+
          map.put(code.getUniqueID(), code);
       }
 

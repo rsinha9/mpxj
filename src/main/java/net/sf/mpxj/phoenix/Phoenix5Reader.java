@@ -39,6 +39,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.sf.mpxj.ActivityCode;
+import net.sf.mpxj.ActivityCodeContainer;
+import net.sf.mpxj.ActivityCodeScope;
 import org.xml.sax.SAXException;
 
 import net.sf.mpxj.ChildTaskContainer;
@@ -110,6 +113,7 @@ public final class Phoenix5Reader extends AbstractProjectStreamReader
          config.setAutoOutlineLevel(false);
          config.setAutoOutlineNumber(false);
          config.setAutoWBS(false);
+         config.setAutoActivityCodeUniqueID(true);
 
          m_projectFile.getProjectProperties().setFileApplication("Phoenix");
          m_projectFile.getProjectProperties().setFileType("PPX");
@@ -120,6 +124,7 @@ public final class Phoenix5Reader extends AbstractProjectStreamReader
          Storepoint storepoint = getCurrentStorepoint(phoenixProject);
          readProjectProperties(phoenixProject.getSettings(), storepoint);
          readCalendars(storepoint);
+         readActivityCodes(storepoint);
          readTasks(phoenixProject, storepoint);
          readResources(storepoint);
          readRelationships(storepoint);
@@ -230,6 +235,21 @@ public final class Phoenix5Reader extends AbstractProjectStreamReader
             hours.add(ProjectCalendarDays.DEFAULT_WORKING_AFTERNOON);
          }
       }
+   }
+
+   private void readActivityCodes(Storepoint storepoint) {
+      ActivityCodes activityCodes = storepoint.getActivityCodes();
+      if (activityCodes != null) {
+         for (Code code : activityCodes.getCode()) {
+            readActivityCode(code);
+         }
+      }
+   }
+
+   private void readActivityCode(Code code) {
+      ActivityCode mpxjCode = m_projectFile.addActivityCode();
+      mpxjCode.setScope(ActivityCodeScope.GLOBAL);
+      mpxjCode.setName(code.getName());
    }
 
    /**
@@ -455,7 +475,7 @@ public final class Phoenix5Reader extends AbstractProjectStreamReader
       task.setActualStart(activity.getActualStart());
       //activity.getBaseunit()
       //activity.getBilled()
-      //activity.getCalendar()
+      task.setCalendar(m_projectFile.getCalendarByName(activity.getCalendar()));
       //activity.getCostAccount()
       task.setCreateDate(activity.getCreationTime());
       task.setFinish(activity.getCurrentFinish());
